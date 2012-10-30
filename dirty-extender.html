@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<script type='text/javascript' src='lib/knockout-2.2.0.debug.js'></script>
+	</head>
+<body onLoad="onLoad()">
+<script type="text/javascript">
+
+function AppViewModel() {
+    this.firstName = ko.observable("Bert").extend({dirty: false});
+    this.lastName = ko.observable("Bertington").extend({dirty: false});
+}
+
+function onLoad()
+{
+	ko.extenders.dirty = function(target, startDirty) {
+	  var cleanValue = ko.observable(ko.toJSON(target));
+	  var dirtyOverride = ko.observable(ko.utils.unwrapObservable(startDirty));
+	  
+	  target.isDirty = ko.computed(function(){
+		return dirtyOverride() || ko.toJSON(target) !== cleanValue();
+	  });
+	  
+	  target.markClean = function(){
+		cleanValue(ko.toJSON(target));
+		dirtyOverride(false);
+	  };
+	  
+	  target.markDirty = function(){
+		dirtyOverride(true);
+	  };
+	  
+	  return target;
+	};
+	
+	obj = new AppViewModel();
+	ko.applyBindings(obj);
+}
+
+</script>
+
+<p>First name: <input data-bind="value: firstName" /></p>
+<p>Last name: <input data-bind="value: lastName" /></p>
+
+<p>Is first name dirty?: <strong data-bind="text: firstName.isDirty()"></strong></p>
+<p>Is last name dirty?: <strong data-bind="text: lastName.isDirty()"></strong></p>
+
+</body>
+</html>
+
